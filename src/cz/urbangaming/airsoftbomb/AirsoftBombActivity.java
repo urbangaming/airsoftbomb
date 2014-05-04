@@ -1,19 +1,40 @@
 package cz.urbangaming.airsoftbomb;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.OnNavigationListener {
+    public static final String DEBUG_TAG = "KARM";
 
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
+
     private ArrayAdapter<String> aAdpt = null;
-    public static final int MODE_PYROTECHNIC = R.drawable.omnitool;
-    public static final int MODE_OMNITOOL = R.drawable.operator;
-    public static final int MODE_OPERATOR = R.drawable.pyrotechnic;
+
+    public static final int MODE_PYROTECHNIC = R.drawable.pyrotechnic;
+    public static final int MODE_OMNITOOL = R.drawable.omnitool;
+    public static final int MODE_OPERATOR = R.drawable.operator;
+
     private int currentMode = MODE_OMNITOOL;
+
+    Vibrator vibrator = null;
+    IntentIntegrator scanIntegrator = null;
+    private ImageButton greenScanButton = null;
+    private TextView message = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +54,52 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
                 });
         actionBar.setListNavigationCallbacks(this.aAdpt, this);
 
+        scanIntegrator = new IntentIntegrator(AirsoftBombActivity.this);
+        vibrator = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+
+        greenScanButton = (ImageButton) findViewById(R.id.greenbutton);
+
+        greenScanButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+                vibrator.vibrate(100);
+                scanIntegrator.initiateScan();
+            }
+        });
+
+        message = (TextView) findViewById(R.id.message);
+        setBackgroundImage();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (scanResult != null) {
+            String scanContent = scanResult.getContents();
+            String scanFormat = scanResult.getFormatName();
+            Log.d(DEBUG_TAG, "scanContent: " + scanContent);
+            Log.d(DEBUG_TAG, "scanFormat: " + scanFormat);
+            message.setText(scanContent);
+        } else {
+            Toast.makeText(AirsoftBombActivity.this, getResources().getString(R.string.error_no_scan), Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void setBackgroundImage() {
         (((ViewGroup) findViewById(android.R.id.content)).getChildAt(0)).setBackgroundResource(currentMode);
+        if (message != null) {
+            switch (currentMode) {
+            case MODE_OMNITOOL:
+                message.setBackgroundResource(R.drawable.omnitool_message);
+                break;
+            case MODE_PYROTECHNIC:
+                message.setBackgroundResource(R.drawable.pyrotechnic_message);
+                break;
+            case MODE_OPERATOR:
+                message.setBackgroundResource(R.drawable.operator_message);
+                break;
+            default:
+                break;
+            }
+        }
     }
 
     @Override
