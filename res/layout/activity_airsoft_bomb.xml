@@ -4,4 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="cz.urbangaming.airsoftbomb.AirsoftBombActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:ignore="MergeRootFrame" >
+
+    <ImageButton
+        android:id="@+id/greenbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="45dp"
+        android:layout_marginLeft="30dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/greenbutton"
+        android:src="@drawable/green_button_selector" />
+
+    <ImageButton
+        android:id="@+id/redbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/greenbutton"
+        android:layout_marginRight="33dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/redbutton"
+        android:src="@drawable/red_button_selector" />
+
+</RelativeLayout>

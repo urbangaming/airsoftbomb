@@ -6,5 +6,7 @@
     <string name="pyrotechnic">Pyrotechnic</string>
     <string name="omnitool">Omnitool</string>
     <string name="action_settings">Settings</string>
-
+    <string name="greenbutton">greenButton</string>
+    <string name="redbutton">redButton</string>
+    
 </resources>

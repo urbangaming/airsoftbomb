@@ -19,12 +19,9 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_airsoft_bomb);
-        // Set up the action bar to show a dropdown list.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-
-        // Set up the dropdown list navigation in the action bar.
         this.aAdpt = new ArrayAdapter<String>(
                 actionBar.getThemedContext(),
                 android.R.layout.simple_list_item_1,
@@ -44,7 +41,6 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        // Restore the previously serialized current dropdown position.
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
             getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
         }
@@ -52,7 +48,6 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        // Serialize the current dropdown position.
         outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getSupportActionBar().getSelectedNavigationIndex());
     }
 
