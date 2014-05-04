@@ -9,5 +9,12 @@
     <string name="greenbutton">greenButton</string>
     <string name="redbutton">redButton</string>
     <string name="error_no_scan">Error: No valid scan result.</string>
-    
+    <string name="error_wrong_scan">Error: I can\'t read the message:</string>
+    <string name="message_prefix">MSG: </string>
+    <string name="message_empty">Empty message.</string>
+    <string name="message_init">Ready.</string>
+    <string name="countdown_init">00:00</string>
+    <string name="countdown_aborted"> Countdown ABORTED!</string>
+    <string name="error_wrong_mode">Error: Connection failed. Unknown device.</string>
+
 </resources>
