@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -26,7 +27,7 @@ import com.google.zxing.integration.android.IntentResult;
 
 public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.OnNavigationListener {
     public static final String DEBUG_TAG = "KARM";
-    private static final Pattern pattern = Pattern.compile("(operator|pyrotechnic)#([^#]*)#([0-9]*)");
+    private static final Pattern pattern = Pattern.compile("(operator|pyrotechnic)#([^#]*)#([^#]*)#([0-9]*)");
 
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
 
@@ -45,6 +46,7 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
     TextView countdown = null;
     CountDownTimer countDownTimer = null;
     MediaPlayer mediaPlayer = null;
+    String lastResultText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +89,8 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
                     countDownTimer.cancel();
                     countDownTimer = null;
                     countdown.setText(getResources().getString(R.string.countdown_init));
-                    message.setText(message.getText() + getResources().getString(R.string.countdown_aborted));
+                    message.setText(message.getText() + System.getProperty("line.separator") + getResources().getString(R.string.countdown_aborted));
+                    lastResultText = "";
                 }
             }
         });
@@ -103,13 +106,13 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
         AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         float maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         mediaPlayer = MediaPlayer.create(this, R.raw.alarm);
-        /*
-         * mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-         * public void onCompletion(MediaPlayer mediaPlayer) {
-         * playingFlag = false;
-         * }
-         * });
-         */
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                countdown.setTextColor(Color.BLACK);
+                message.setText(message.getText() + System.getProperty("line.separator") + lastResultText);
+            }
+        });
         mediaPlayer.setVolume(maxVolume, maxVolume);
     }
 
@@ -131,18 +134,18 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
             @Override
             public void onFinish() {
                 countdown.setText(getResources().getString(R.string.countdown_init));
+                countdown.setTextColor(Color.WHITE);
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.stop();
                 }
                 mediaPlayer.start();
-                vibrator.vibrate(2000);
+                vibrator.vibrate(4000);
             }
 
         }.start();
-        //countDownTimer.cancel();
     }
 
-    public void processMessage(String text, String time) {
+    public void processMessage(String text, String resultText, String time) {
         if (text != null && !text.isEmpty()) {
             message.setText(getResources().getString(R.string.message_prefix) + text);
         } else {
@@ -155,6 +158,9 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
             } catch (NumberFormatException ex) {
                 // Silence is golden.
             }
+        }
+        if (resultText != null && !resultText.isEmpty()) {
+            lastResultText = resultText;
         }
     }
 
@@ -170,16 +176,17 @@ public class AirsoftBombActivity extends ActionBarActivity implements ActionBar.
                 if (matcher.matches() && matcher.group(1) != null) {
                     Log.d(DEBUG_TAG, "Mode from message: " + matcher.group(1));
                     Log.d(DEBUG_TAG, "Text from message: " + matcher.group(2));
-                    Log.d(DEBUG_TAG, "Minutes from message: " + matcher.group(3));
+                    Log.d(DEBUG_TAG, "Result from message: " + matcher.group(3));
+                    Log.d(DEBUG_TAG, "Minutes from message: " + matcher.group(4));
                     if (currentMode != MODE_OMNITOOL) {
                         if ((matcher.group(1).equalsIgnoreCase(getResources().getString(R.string.pyrotechnic)) && currentMode == MODE_PYROTECHNIC)
                                 || (matcher.group(1).equalsIgnoreCase(getResources().getString(R.string.operator)) && currentMode == MODE_OPERATOR)) {
-                            processMessage(matcher.group(2), matcher.group(3));
+                            processMessage(matcher.group(2), matcher.group(3), matcher.group(4));
                         } else {
                             message.setText(getResources().getString(R.string.error_wrong_mode));
                         }
                     } else {
-                        processMessage(matcher.group(2), matcher.group(3));
+                        processMessage(matcher.group(2), matcher.group(3), matcher.group(4));
                     }
                 } else {
                     message.setText(getResources().getString(R.string.error_wrong_scan));
